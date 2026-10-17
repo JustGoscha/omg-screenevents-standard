@@ -1,0 +1,225 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/justgoscha/omg-screenevents-standard/schema/screenevents.schema.json",
+  "title": "ScreenEvents message (v0.1)",
+  "description": "One line of a ScreenEvents stream. Unknown fields and message types must be ignored by receivers, so objects allow additional properties.",
+  "oneOf": [
+    { "$ref": "#/$defs/hello" },
+    { "$ref": "#/$defs/welcome" },
+    { "$ref": "#/$defs/display" },
+    { "$ref": "#/$defs/touch" },
+    { "$ref": "#/$defs/update" },
+    { "$ref": "#/$defs/action" },
+    { "$ref": "#/$defs/hints" },
+    { "$ref": "#/$defs/privacy" },
+    { "$ref": "#/$defs/ping" },
+    { "$ref": "#/$defs/pong" },
+    { "$ref": "#/$defs/bye" },
+    { "$ref": "#/$defs/sidecar" }
+  ],
+  "$defs": {
+    "time": { "type": "number", "description": "Seconds on the session clock." },
+    "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+$" },
+    "capability": {
+      "type": "string",
+      "description": "Known: touch, pencil, hover, pointer, estimated, predicted, pencil-actions. Others must be ignored."
+    },
+    "peer": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": { "type": "string", "description": "Reverse-DNS identifier, e.g. the bundle id." },
+        "name": { "type": "string" },
+        "version": { "type": "string" },
+        "pid": { "type": "integer" }
+      }
+    },
+    "rect": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 4,
+      "maxItems": 4,
+      "description": "[x, y, width, height] in fixed screen points."
+    },
+
+    "hello": {
+      "type": "object",
+      "required": ["type", "protocol", "version", "source", "clock"],
+      "properties": {
+        "type": { "const": "hello" },
+        "protocol": { "const": "screenevents" },
+        "version": { "$ref": "#/$defs/version" },
+        "source": { "$ref": "#/$defs/peer" },
+        "clock": { "enum": ["host", "source"] },
+        "capabilities": { "type": "array", "items": { "$ref": "#/$defs/capability" } }
+      }
+    },
+    "welcome": {
+      "type": "object",
+      "required": ["type", "version", "recorder"],
+      "properties": {
+        "type": { "const": "welcome" },
+        "version": { "$ref": "#/$defs/version" },
+        "recorder": { "$ref": "#/$defs/peer" },
+        "want": { "type": "array", "items": { "$ref": "#/$defs/capability" } },
+        "maxRate": { "type": "number", "exclusiveMinimum": 0 }
+      }
+    },
+    "display": {
+      "type": "object",
+      "required": ["type", "t", "screen"],
+      "properties": {
+        "type": { "const": "display" },
+        "t": { "$ref": "#/$defs/time" },
+        "screen": {
+          "type": "object",
+          "required": ["id", "size", "scale", "rotation"],
+          "properties": {
+            "id": { "type": "string" },
+            "size": {
+              "type": "array",
+              "items": { "type": "number", "exclusiveMinimum": 0 },
+              "minItems": 2,
+              "maxItems": 2,
+              "description": "Points, in the screen's fixed (native) orientation."
+            },
+            "scale": { "type": "number", "exclusiveMinimum": 0 },
+            "rotation": { "enum": [0, 90, 180, 270], "description": "Interface rotation from native, degrees clockwise." }
+          }
+        },
+        "windows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "frame"],
+            "properties": {
+              "id": { "type": "string" },
+              "frame": { "$ref": "#/$defs/rect" },
+              "key": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    },
+    "sample": {
+      "type": "object",
+      "required": ["seq", "t", "x", "y"],
+      "properties": {
+        "seq": { "type": "integer", "minimum": 0 },
+        "t": { "$ref": "#/$defs/time" },
+        "x": { "type": "number" },
+        "y": { "type": "number" },
+        "force": { "type": "number", "minimum": 0, "maximum": 1 },
+        "altitude": { "type": "number", "minimum": 0, "maximum": 1.5707964 },
+        "azimuth": { "type": "number", "description": "Radians in fixed screen space; 0 = +x, increasing toward +y." },
+        "roll": { "type": "number" },
+        "z": { "type": "number", "minimum": 0, "maximum": 1 },
+        "radius": { "type": "number", "minimum": 0 },
+        "radiusTolerance": { "type": "number", "minimum": 0 },
+        "estimated": {
+          "type": "array",
+          "items": { "enum": ["force", "altitude", "azimuth", "roll", "x", "y"] }
+        }
+      }
+    },
+    "touch": {
+      "type": "object",
+      "required": ["type", "id", "kind", "phase", "screen", "samples"],
+      "properties": {
+        "type": { "const": "touch" },
+        "id": { "type": "integer", "minimum": 0 },
+        "kind": { "enum": ["finger", "pencil", "pointer"] },
+        "phase": {
+          "enum": ["began", "moved", "stationary", "ended", "cancelled", "hover-began", "hover", "hover-ended"]
+        },
+        "screen": { "type": "string" },
+        "samples": { "type": "array", "items": { "$ref": "#/$defs/sample" }, "minItems": 1 },
+        "predicted": { "type": "array", "items": { "$ref": "#/$defs/sample" } },
+        "buttons": { "type": "integer", "minimum": 0 },
+        "source": { "type": "string", "description": "Sidecar only: which source this line came from." }
+      }
+    },
+    "update": {
+      "type": "object",
+      "required": ["type", "id", "seq"],
+      "properties": {
+        "type": { "const": "update" },
+        "id": { "type": "integer", "minimum": 0 },
+        "seq": { "type": "integer", "minimum": 0 },
+        "force": { "type": "number", "minimum": 0, "maximum": 1 },
+        "altitude": { "type": "number", "minimum": 0, "maximum": 1.5707964 },
+        "azimuth": { "type": "number" },
+        "roll": { "type": "number" },
+        "final": { "type": "boolean" }
+      }
+    },
+    "action": {
+      "type": "object",
+      "required": ["type", "t", "name"],
+      "properties": {
+        "type": { "const": "action" },
+        "t": { "$ref": "#/$defs/time" },
+        "name": { "type": "string", "description": "Known: pencil-double-tap, pencil-squeeze." },
+        "phase": { "enum": ["began", "changed", "ended", "cancelled"] },
+        "hover": {
+          "type": "object",
+          "required": ["x", "y"],
+          "properties": { "x": { "type": "number" }, "y": { "type": "number" } }
+        }
+      }
+    },
+    "hints": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": { "const": "hints" },
+        "selfRendered": { "type": "array", "items": { "enum": ["finger", "pencil", "pointer"] } },
+        "suppress": { "type": "boolean" }
+      }
+    },
+    "privacy": {
+      "type": "object",
+      "required": ["type", "state"],
+      "properties": {
+        "type": { "const": "privacy" },
+        "state": { "enum": ["paused", "resumed"] },
+        "reason": { "type": "string" }
+      }
+    },
+    "ping": {
+      "type": "object",
+      "required": ["type", "n", "t"],
+      "properties": {
+        "type": { "const": "ping" },
+        "n": { "type": "integer" },
+        "t": { "$ref": "#/$defs/time" }
+      }
+    },
+    "pong": {
+      "type": "object",
+      "required": ["type", "n", "t", "rt"],
+      "properties": {
+        "type": { "const": "pong" },
+        "n": { "type": "integer" },
+        "t": { "$ref": "#/$defs/time" },
+        "rt": { "$ref": "#/$defs/time" }
+      }
+    },
+    "bye": {
+      "type": "object",
+      "required": ["type"],
+      "properties": { "type": { "const": "bye" } }
+    },
+    "sidecar": {
+      "type": "object",
+      "required": ["type", "version", "clock", "videoStart"],
+      "properties": {
+        "type": { "const": "sidecar" },
+        "version": { "$ref": "#/$defs/version" },
+        "clock": { "enum": ["host", "source"] },
+        "videoStart": { "$ref": "#/$defs/time" },
+        "recorder": { "$ref": "#/$defs/peer" }
+      }
+    }
+  }
+}
