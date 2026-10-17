@@ -1,0 +1,101 @@
+name: ScreenEventsTestApps
+options:
+  bundleIdPrefix: app.omg.screenevents
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+packages:
+  ScreenEventsKit:
+    path: ../swift/ScreenEventsKit
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    CODE_SIGN_STYLE: Automatic
+    TARGETED_DEVICE_FAMILY: "1,2"
+targets:
+  # The app being recorded: a drawing pad that sends its touches and Pencil.
+  SESource:
+    type: application
+    platform: iOS
+    sources: [Source]
+    dependencies:
+      - package: ScreenEventsKit
+    info:
+      path: Source/Info.plist
+      properties:
+        CFBundleDisplayName: SE Source
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+        UISupportedInterfaceOrientations~ipad: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.omg.screenevents.source
+  # The recorder: hosts the broadcast extension, shows its results, and has an in-app listener.
+  SERecorder:
+    type: application
+    platform: iOS
+    sources: [Recorder, Shared]
+    dependencies:
+      - package: ScreenEventsKit
+      - target: SERecorderBroadcast
+    info:
+      path: Recorder/Info.plist
+      properties:
+        CFBundleDisplayName: SE Recorder
+        UILaunchScreen: {}
+        UIBackgroundModes: [audio]
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+        UISupportedInterfaceOrientations~ipad: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+    entitlements:
+      path: Recorder/Recorder.entitlements
+      properties:
+        com.apple.security.application-groups: [group.app.omg.screenevents]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.omg.screenevents.recorder
+  # ReplayKit broadcast upload extension: the system-wide recorder that listens for Sources.
+  SERecorderBroadcast:
+    type: app-extension
+    platform: iOS
+    sources: [RecorderBroadcast, Shared]
+    dependencies:
+      - package: ScreenEventsKit
+      - sdk: ReplayKit.framework
+    info:
+      path: RecorderBroadcast/Info.plist
+      properties:
+        CFBundleDisplayName: SE Recorder
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.broadcast-services-upload
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).SampleHandler
+          RPBroadcastProcessMode: RPBroadcastProcessModeSampleBuffer
+    entitlements:
+      path: RecorderBroadcast/RecorderBroadcast.entitlements
+      properties:
+        com.apple.security.application-groups: [group.app.omg.screenevents]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.omg.screenevents.recorder.broadcast
+  # Drives both apps in the simulator: real touches in SESource, counts read back from SERecorder.
+  SEIntegrationUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [IntegrationUITests]
+    dependencies:
+      - target: SESource
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: SESource
+        PRODUCT_BUNDLE_IDENTIFIER: app.omg.screenevents.integrationuitests
+schemes:
+  ScreenEventsTestApps:
+    build:
+      targets:
+        SESource: all
+        SERecorder: all
+    test:
+      config: Debug
+      targets: [SEIntegrationUITests]

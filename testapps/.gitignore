@@ -1,0 +1,6 @@
+build/
+*.xcodeproj/
+.build/
+.swiftpm/
+Info.plist
+*.entitlements

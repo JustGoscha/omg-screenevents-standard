@@ -27,6 +27,8 @@ iPadOS and iOS screen recordings contain pixels only. No recorder can see where 
 - [SPEC.md](SPEC.md): the specification (v1.0)
 - [schema/screenevents.schema.json](schema/screenevents.schema.json): JSON Schema for all messages
 - [examples/session.ndjson](examples/session.ndjson): an example session (finger tap, then a Pencil stroke with hover)
+- [swift/ScreenEventsKit](swift/ScreenEventsKit): Swift reference implementation (Source, Recorder, UIKit touch capture). `swift test` runs the handshake over real loopback.
+- [testapps](testapps): SE Source and SE Recorder (with a ReplayKit broadcast extension) for testing in the simulator and on devices
 
 ## Status
 
