@@ -1,6 +1,6 @@
 # ScreenEvents — specification
 
-**Version 0.1 (draft)** · Status: open for comment
+**Version 1.0** · Status: stable · Wire version: `"1.0"`
 
 ScreenEvents is a small protocol that an app being recorded uses to send its touch, Apple Pencil and pointer input to a screen recorder. The recorder can then draw that input as an overlay with the right position, orientation, tilt and pressure.
 
@@ -69,7 +69,7 @@ For a recorder on a Mac or another device (for example a cable or AirPlay captur
 The Source sends `hello` first:
 
 ```json
-{"type":"hello","protocol":"screenevents","version":"0.1",
+{"type":"hello","protocol":"screenevents","version":"1.0",
  "source":{"id":"com.example.sketch","name":"Sketch","version":"2.3.0","pid":4211},
  "clock":"host",
  "capabilities":["touch","pencil","hover","pointer","estimated","predicted","pencil-actions"]}
@@ -78,7 +78,7 @@ The Source sends `hello` first:
 The Recorder answers with `welcome`:
 
 ```json
-{"type":"welcome","version":"0.1",
+{"type":"welcome","version":"1.0",
  "recorder":{"id":"com.example.recorder.broadcast","name":"Recorder"},
  "want":["touch","pencil","hover","pointer","estimated","pencil-actions"],
  "maxRate":240}
@@ -273,7 +273,7 @@ A Recorder MAY store the received stream next to the video, so the overlay can b
 - The first line is a `sidecar` header:
 
 ```json
-{"type":"sidecar","version":"0.1","clock":"host","videoStart":81230.0,"recorder":{"id":"com.example.recorder"}}
+{"type":"sidecar","version":"1.0","clock":"host","videoStart":81230.0,"recorder":{"id":"com.example.recorder"}}
 ```
 
 `videoStart` is the host-clock time of the first video frame, so `t − videoStart` is the time offset in the video.
@@ -305,7 +305,7 @@ The event stream is input data, so it is sensitive. Touch positions over an on-s
 
 `version` is `major.minor`. Minor versions only add optional fields and message types, so older peers keep working by ignoring them. A major version change may break compatibility and is negotiated in the handshake.
 
-## 13. Open questions
+## 13. Future work (1.x and later)
 
 - Should there be a pairing step (for example the Recorder showing a short code) so Sources can authenticate it?
 - A binary encoding (CBOR) for high-rate multi-touch, negotiated in `hello`?

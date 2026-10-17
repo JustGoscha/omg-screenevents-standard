@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/justgoscha/omg-screenevents-standard/schema/screenevents.schema.json",
-  "title": "ScreenEvents message (v0.1)",
+  "title": "ScreenEvents message (v1.0)",
   "description": "One line of a ScreenEvents stream. Unknown fields and message types must be ignored by receivers, so objects allow additional properties.",
   "oneOf": [
     { "$ref": "#/$defs/hello" },

@@ -24,13 +24,13 @@ iPadOS and iOS screen recordings contain pixels only. No recorder can see where 
 
 ## Contents
 
-- [SPEC.md](SPEC.md): the specification (v0.1 draft)
+- [SPEC.md](SPEC.md): the specification (v1.0)
 - [schema/screenevents.schema.json](schema/screenevents.schema.json): JSON Schema for all messages
 - [examples/session.ndjson](examples/session.ndjson): an example session (finger tap, then a Pencil stroke with hover)
 
 ## Status
 
-Draft. Feedback, issues and implementations are welcome. Please open an issue or pull request.
+**Version 1.0, stable.** The wire version is `"1.0"`; the release is tagged `v1.0.0`. Changes follow §12 of the spec: 1.x only adds optional fields and message types. Feedback, issues and implementations are welcome. Please open an issue or pull request.
 
 ## License
 

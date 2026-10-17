@@ -1,5 +1,5 @@
-{"type":"hello","protocol":"screenevents","version":"0.1","source":{"id":"com.example.sketch","name":"Sketch","version":"2.3.0","pid":4211},"clock":"host","capabilities":["touch","pencil","hover","pointer","estimated","predicted","pencil-actions"]}
-{"type":"welcome","version":"0.1","recorder":{"id":"com.example.recorder.broadcast","name":"Recorder"},"want":["touch","pencil","hover","estimated","pencil-actions"],"maxRate":240}
+{"type":"hello","protocol":"screenevents","version":"1.0","source":{"id":"com.example.sketch","name":"Sketch","version":"2.3.0","pid":4211},"clock":"host","capabilities":["touch","pencil","hover","pointer","estimated","predicted","pencil-actions"]}
+{"type":"welcome","version":"1.0","recorder":{"id":"com.example.recorder.broadcast","name":"Recorder"},"want":["touch","pencil","hover","estimated","pencil-actions"],"maxRate":240}
 {"type":"display","t":81234.100,"screen":{"id":"main","size":[1024,1366],"scale":2,"rotation":90},"windows":[{"id":"w1","frame":[0,0,1024,1366],"key":true}]}
 {"type":"hints","selfRendered":[],"suppress":false}
 {"type":"touch","id":1,"kind":"finger","phase":"began","screen":"main","samples":[{"seq":1,"t":81234.200,"x":300.0,"y":500.0,"radius":20.8,"radiusTolerance":5.2}]}
