@@ -41,6 +41,13 @@ public final class ScreenEventsTouchCapture: NSObject {
             }
         }
         NotificationCenter.default.addObserver(self, selector: #selector(captureChanged), name: UIScreen.capturedDidChangeNotification, object: nil)
+        if #available(iOS 17.0, *) {
+            // the notification fires before the window's trait updates: reading the trait then
+            // gets the old state (off when recording starts, on when it stops)
+            window.registerForTraitChanges([UITraitSceneCaptureState.self]) { [weak self] (_: UIWindow, _: UITraitCollection) in
+                self?.refreshActive()
+            }
+        }
         installRecognizers(on: window)
     }
 
